@@ -32,9 +32,6 @@ public class Movie {
     @Column(nullable = false)
     private String studio;
  
-    @Column(nullable = false)
-    private String poster;
-
     private String posterUrl;
 
     private Integer releaseYear;
