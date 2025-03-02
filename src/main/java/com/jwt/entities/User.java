@@ -22,10 +22,12 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 @Entity
 public class User implements UserDetails {
@@ -58,6 +60,7 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
     public Collection<? extends GrantedAuthority> getAuthorities(){
         return List.of(new  SimpleGrantedAuthority(role.name()));
     }

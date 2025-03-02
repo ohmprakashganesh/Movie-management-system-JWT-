@@ -1,6 +1,7 @@
 package com.jwt.auth;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,6 +17,11 @@ import com.jwt.dtos.RefreshTokenRequest;
 import com.jwt.dtos.RegisterRequest;
 import com.jwt.entities.RefreshToken;
 import com.jwt.entities.User;
+import com.jwt.repositories.UserRepository;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 
@@ -27,20 +33,25 @@ public class UserController {
 
     private final AuthService service;
     private final RefreshTokenService refreshTokenService;
+    private final UserRepository userRepository;
     private final JwtService jwtService;
 
-    public UserController(AuthService authService, RefreshTokenService refreshTokenService, JwtService jwtService) {
+    public UserController(AuthService authService, RefreshTokenService refreshTokenService, JwtService jwtService, UserRepository userRepository) {
         this.service = authService;
         this.refreshTokenService = refreshTokenService;
         this.jwtService = jwtService;
+        this.userRepository=userRepository;
     }
 
      @PostMapping("/register")
     public ResponseEntity<AuthResponse> registerUser(@RequestBody RegisterRequest registerRequest) {
         return ResponseEntity.ok(service.register(registerRequest));
     }
+
+
       @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest loginRequest) {
+        System.out.println("printitn login data"+loginRequest);
         return ResponseEntity.ok(service.login(loginRequest));
     }
 

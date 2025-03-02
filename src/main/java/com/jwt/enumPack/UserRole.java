@@ -2,6 +2,6 @@ package com.jwt.enumPack;
 
 public enum UserRole {
     
-    USDR,
+    USER,
     ADMIN
 }

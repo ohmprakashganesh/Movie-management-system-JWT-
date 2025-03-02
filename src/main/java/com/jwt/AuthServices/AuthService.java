@@ -1,20 +1,19 @@
 package com.jwt.AuthServices;
 
-import java.util.Optional;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import com.jwt.dtos.AuthResponse;
 import com.jwt.dtos.LoginRequest;
 import com.jwt.dtos.RegisterRequest;
 import com.jwt.entities.User;
+import com.jwt.enumPack.UserRole;
 import com.jwt.repositories.UserRepository;
 
-import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +31,9 @@ public class AuthService {
         .email(request.getEmail())
         .username(request.getUsername())
         .password(passwordEncoder.encode( request.getPassword()))
+        .role(UserRole.USER)
         .build();
+        System.out.println("pringing the user "+user);
 
         User savUser= userRepository.save(user);
         var accessToken=jwtService.generateToken(savUser);
@@ -46,35 +47,33 @@ public class AuthService {
         .build();
     }
 
-
- public AuthResponse login(LoginRequest loginRequest) {
-        authenticationManager.authenticate(
+    public AuthResponse login(LoginRequest loginRequest) {
+        try {
+            System.out.println("this is inside the auth service of login"+loginRequest);
+            authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        loginRequest.getEmail(),
-                        loginRequest.getPassword()
-                        )
-        );
- 
-
-        Optional< User> opt = userRepository.findByEmail(loginRequest.getEmail());
-        if(opt.isPresent()){
-            User user=opt.get();
-            var accessToken = jwtService.generateToken(user);
-            var refreshToken = refreshTokenService.createRefreshToken(loginRequest.getEmail());
-    
-            return AuthResponse.builder()
-                    .accessToken(accessToken)
-                    .refreshToken(refreshToken.getRefreshToken())
-                    .name(user.getName())
-                    .email(user.getEmail())
-                    .build();
-        }else{
-            return null;
-        }
-        
-     
+                    loginRequest.getEmail(),
+                    loginRequest.getPassword()
+                )
+            );
+        } catch (BadCredentialsException e) {
+        System.out.println("Authentication failed: Incorrect username or password");
+        throw new UsernameNotFoundException("Invalid username or password");
+    } catch (Exception e) {
+        System.out.println("Unexpected error during authentication: " + e.getMessage());
+        throw new RuntimeException("Authentication error: " + e.getMessage());
+    }
 
 
-    
-}
+        var user = userRepository.findByEmail(loginRequest.getEmail()).orElseThrow(() -> new UsernameNotFoundException("User not found!"));
+        var accessToken = jwtService.generateToken(user);
+        var refreshToken = refreshTokenService.createRefreshToken(loginRequest.getEmail());
+
+        return AuthResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken.getRefreshToken())
+                .name(user.getName())
+                .email(user.getEmail())
+                .build();
+    }
 }

@@ -25,28 +25,19 @@ public class SecurityConfig {
     private final AuthFilterService authFilterService;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http)throws Exception{
-        http 
-        .csrf(AbstractHttpConfigurer::disable)
-        .authorizeHttpRequests(auth->auth 
-        .requestMatchers("/user/**","/movie/**")
-        .permitAll()
-        .anyRequest()
-        .authenticated())
-        .sessionManagement(session->session
-        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authenticationProvider(authenticationProvider)
-      .addFilterBefore(authFilterService, UsernamePasswordAuthenticationFilter.class);
-         
-       return http.build();
-        
-        
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/user/register", "/user/login")
+                        .permitAll()
+                        .anyRequest()
+                        .authenticated())
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider)
+                .addFilterBefore(authFilterService, UsernamePasswordAuthenticationFilter.class);
 
+        return http.build();
     }
-    
-
-  
-
-
-    
 }
