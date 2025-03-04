@@ -1,6 +1,8 @@
 package com.jwt.auth;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -67,6 +69,21 @@ public class UserController {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken.getRefreshToken())
                 .build());
+    }
+
+    @GetMapping("/profile")
+   public ResponseEntity <User> getLoggedUser(){
+    Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
+    String email= authentication.getName();
+    System.out.println("getAuthorities"+authentication.getAuthorities());
+    System.out.println("getname"+authentication.getName());
+    System.out.println("getdetails"+authentication.getDetails());
+    System.out.println("principal"+authentication.getPrincipal());
+    System.out.println("credentials"+authentication.getCredentials());
+    User user= userRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("user not found"));
+
+    return ResponseEntity.ok(user);
+
     }
 
     

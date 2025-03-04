@@ -54,7 +54,7 @@ public class MoviesServiceImpl implements MovieServices {
 }
 
  if(Files.exists(Paths.get(path+File.separator+movie.getFile().getOriginalFilename()))){
- throw new FileExistExcepction("already exist");
+ throw new FileExistExcepction("you must user the different poster for each unique movie");
 }
 
   try {
